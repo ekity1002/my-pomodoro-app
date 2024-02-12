@@ -1,0 +1,52 @@
+version: "3.8"
+services:
+  db:
+    image: postgres:15.5
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    ports:
+      - "5432:5432"
+    restart: always
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+      args:
+        WORKDIR: $WORKDIR
+    volumes:
+      - "./backend:/$WORKDIR"
+    ports:
+      - "8000:3000"
+    depends_on:
+      - db
+    environment:
+      DATABASE_URL: ${DATABASE_URL}
+      TZ: Asia/Tokyo
+      RAILS_ENV: development
+    tty: true
+
+  frontend:
+    # frontendにあるDockerfileをもとにイメージを生成する
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      # .envの環境変数を展開して、WORKDIRという引数を登録し、frontend/Dockerfileに渡す
+      args:
+        WORKDIR: $WORKDIR
+    # frontendディレクトリにあるホストのファイルとコンテナを同期
+    volumes:
+      - "./frontend:/$WORKDIR"
+    ports:
+      - "8080:5173"
+    # backendコンテナ起動後にfrontendコンテナを起動
+    depends_on:
+      - backend
+    tty: true
+    command: npx vite dev --host
+
+volumes:
+  postgres_data:
