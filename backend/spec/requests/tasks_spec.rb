@@ -14,4 +14,15 @@ RSpec.describe "Tasks", type: :request do
       expect(JSON.parse(response.body).size).to eq(10)
     end
   end
+
+  describe "GET /task" do
+    it "returns task" do
+      task = FactoryBot.create(:task, title: "Sample Task", description: "This is a sample task.")
+      get task_path(task.id)
+
+      expect(response).to have_http_status(200)
+      expect(JSON.parse(response.body)["title"]).to eq("Sample Task")
+      expect(JSON.parse(response.body)["description"]).to eq("This is a sample task.")
+    end
+  end
 end
