@@ -32,6 +32,12 @@ class TasksController < ApplicationController
     end
   end
 
+  def destroy
+    task = Task.find(params[:id])
+    task.destroy
+    head :no_content # レスポンスボディなしでステータスコード204を返す
+  end
+
   private
     def task_params
       params.require(:task).permit(:title, :description, :due_date, :project_id, :status)

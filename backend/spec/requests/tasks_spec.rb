@@ -90,4 +90,16 @@ RSpec.describe "Tasks", type: :request do
       end
     end
   end
+
+  describe "DELETE /tasks/:id" do
+    it "deletes the task" do
+      task = FactoryBot.create(:task)
+      expect {
+        delete task_path(task)
+      }.to change(Task, :count).by(-1) # タスクの総数が1減少することを確認
+
+      expect(response).to have_http_status(204) # No Content
+
+    end
+  end
 end
